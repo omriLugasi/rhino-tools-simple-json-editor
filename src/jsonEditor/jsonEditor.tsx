@@ -59,6 +59,10 @@ export const JsonEditor = (props: Iprops) => {
     restructureInitialValue(props.value),
   )
 
+  const addNewField = useCallback(() => {
+    alert('add new field!')
+  }, [])
+
   const onRowChanged = useCallback(
     (__custom__key__: string) =>
       (oldKey: string, key: string, value: string) => {
@@ -114,6 +118,7 @@ export const JsonEditor = (props: Iprops) => {
                   key={__custom__key__}
                   index={index}
                   type={typeof value}
+                  addNewField={addNewField}
               />
               <PremitiveRow
                 __level__={props.__level__ ?? 0}
@@ -153,15 +158,22 @@ export const JsonEditor = (props: Iprops) => {
           )
         } else if (typeof value === 'object' && value === null) {
           return (
-            <NullRow
-              __level__={props.__level__ ?? 0}
-              key={__custom__key__}
-              value={value}
-              keyValue={key}
-              disable={__metadata__.keyValueWriteable}
-              onChange={onRowChanged(__custom__key__)}
-              onTypeChange={onRowTypeChanged(__custom__key__)}
-            />
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <Line
+                    key={__custom__key__}
+                    index={index}
+                    type={ERowOptionalTypes.nullValue}
+                />
+                  <NullRow
+                    __level__={props.__level__ ?? 0}
+                    key={__custom__key__}
+                    value={value}
+                    keyValue={key}
+                    disable={__metadata__.keyValueWriteable}
+                    onChange={onRowChanged(__custom__key__)}
+                    onTypeChange={onRowTypeChanged(__custom__key__)}
+                  />
+              </div>
           )
         } else {
           return

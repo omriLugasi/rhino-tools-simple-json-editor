@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {createPortal} from 'react-dom'
-import {ERowOptionalTypes} from "../types.ts";
-import classes from '../jsonEditor.module.scss'
+import {ERowOptionalTypes} from "../jsonEditor/types.ts";
+import classes from '../jsonEditor/jsonEditor.module.scss'
 
 interface IpropsLine {
     index: number,
@@ -20,7 +20,7 @@ export const Line = (props: IpropsLine) => {
 
     return (
         <div>
-            <div style={{ width: 10, positio: 'relative', cursor: 'pointer' }}
+            <div style={{ width: 10, positio: 'relative', cursor: 'pointer', marginRight: 20 }}
                  onMouseEnter={() => {
                      setHover(true)
                  }}
