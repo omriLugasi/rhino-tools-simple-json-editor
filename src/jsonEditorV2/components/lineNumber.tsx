@@ -44,6 +44,9 @@ export const Line = (props: IpropsLine) => {
                             <div className={classes.popupContainerItem} onClick={onNewNodeRequested}>
                                 Add New Field
                             </div>
+                            <div className={classes.popupContainerItem}>
+                                Delete Field
+                            </div>
                             {
                                 props.type === ERowOptionalTypes.array ?
                                     (
