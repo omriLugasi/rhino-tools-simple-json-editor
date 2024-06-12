@@ -1,4 +1,4 @@
-import classes from '../jsonEditor/jsonEditor.module.scss'
+import classes from '../../jsonEditor/jsonEditor.module.scss'
 import React, { useRef, useCallback } from 'react'
 
 interface IpresentKeyProps {
@@ -14,7 +14,7 @@ export const PresentKey = (props: IpresentKeyProps) => {
 
     const onBlur = useCallback(() => {
         props.onChange(keyRef.current.innerText)
-    }, [keyRef.current])
+    }, [keyRef.current, props.onChange])
 
   return (
     <div className={classes.keyItem}>

@@ -9,7 +9,8 @@ function App() {
     <JsonEditorV2 value={{
         string: 'string',
         number: 0,
-        boolean: false
+        boolean: false,
+        nullValue: null
     } } onValueChange={console.log} />
         <hr />
       <JsonEditor

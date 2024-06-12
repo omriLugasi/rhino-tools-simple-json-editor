@@ -1,12 +1,12 @@
-import {useState} from 'react'
+import {useState, useCallback} from 'react'
 import {createPortal} from 'react-dom'
-import {ERowOptionalTypes} from "../jsonEditor/types.ts";
-import classes from '../jsonEditor/jsonEditor.module.scss'
+import {AddNewNodeType, ERowOptionalTypes} from "../../jsonEditor/types.ts";
+import classes from '../../jsonEditor/jsonEditor.module.scss'
 
 interface IpropsLine {
     index: number,
     type: ERowOptionalTypes,
-    addNewField: () => void
+    addNewNode: (params: AddNewNodeType) => void
 }
 
 
@@ -17,6 +17,13 @@ export const Line = (props: IpropsLine) => {
     const [hover, setHover] = useState<boolean>(false)
 
 
+    const onNewNodeRequested = useCallback(() => {
+        props.addNewNode({
+            key: 'new_key_' + Math.random().toString(16).substring(2, 8),
+            value: ''
+        })
+        setOpen(false)
+    }, [])
 
     return (
         <div>
@@ -34,7 +41,7 @@ export const Line = (props: IpropsLine) => {
                 open && (
                     createPortal(
                         <div className={classes.popupContainer}>
-                            <div className={classes.popupContainerItem} onClick={props.addNewField}>
+                            <div className={classes.popupContainerItem} onClick={onNewNodeRequested}>
                                 Add New Field
                             </div>
                             {

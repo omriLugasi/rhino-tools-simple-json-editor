@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef} from "react";
-import {Row} from './row'
+import {Row} from './components/row.tsx'
 import {RowItemType} from "../jsonEditor/types.ts";
 import { VirtualJsonTree } from './virtualJsonTree.ts'
 
@@ -13,44 +13,26 @@ interface Iprops {
 
 
 export const JsonEditorV2 = (props: Iprops) => {
-
-    // const [json, setJson] = useState(props.value)
-    //
-    // useEffect(() => {
-    //     if (json === props.value) {
-    //         return
-    //     }
-    //     // props.onValueChange(json)
-    //     console.log(`json is updated ${JSON.stringify(json)}`)
-    // }, [json, props.value])
-
-    const jsonArr = useRef(new VirtualJsonTree(props.value))
+    const [update, enforceUpdate] = useState()
+    const [jsonArr, setJsonArr] = useState(new VirtualJsonTree(props.value))
 
     useEffect(() => {
-        jsonArr.current.onJsonChange((json) => {
-            console.log({json})
+        jsonArr.onJsonChange((json) => {
+            props.onValueChange(json)
+            enforceUpdate(new Date())
         })
-    }, [jsonArr.current])
+    }, [jsonArr])
 
-    return jsonArr.current.getAll().map((item: RowItemType, index: number) => {
+    return jsonArr.getAll().map((item: RowItemType, index: number) => {
         return <Row
-                    key={item.key}
+                    key={item.uniqueKey()}
                     keyValue={item.key}
                     value={item.value}
                     type={item.getType()}
                     index={index + 1}
                     onChange={item.onChange}
+                    onTypeChange={item.onTypeChange}
+                    addNewNode={(params) => jsonArr.addNewNode(params)}
                 />
     })
-
-    // return Object.keys(json).map((key: string, index: number) => {
-    //     return (
-    //         <Row
-    //             key={key}
-    //             keyValue={key}
-    //             value={json[key]}
-    //             index={index + 1}
-    //         />
-    //     )
-    // })
 }

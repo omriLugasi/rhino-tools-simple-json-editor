@@ -19,6 +19,8 @@ export type RowItemType = {
   value: unknown,
   getType: () => string,
   onChange: (key: string, value: unknown) => void
+  onTypeChange: (newType: ERowOptionalTypes) => void
+  uniqueKey: () => string
 }
 
 
@@ -33,4 +35,14 @@ export type UpdateNodeEventType = {
   value: unknown,
   key: string,
   __custom_key__: string
+}
+
+export type UpdateNodeTypeEventType = {
+  newType: ERowOptionalTypes,
+  __custom_key__: string
+}
+
+export type AddNewNodeType = {
+  value: unknown,
+  key: string,
 }
