@@ -1,5 +1,5 @@
 import classes from '../jsonEditor/jsonEditor.module.scss'
-import React from 'react'
+import React, { useRef, useCallback } from 'react'
 
 interface IpresentKeyProps {
   onChange: (value: string) => void
@@ -10,6 +10,12 @@ interface IpresentKeyProps {
 }
 
 export const PresentKey = (props: IpresentKeyProps) => {
+    const keyRef = useRef()
+
+    const onBlur = useCallback(() => {
+        props.onChange(keyRef.current.innerText)
+    }, [keyRef.current])
+
   return (
     <div className={classes.keyItem}>
       {props.showDropdownArrow ? (
@@ -20,7 +26,8 @@ export const PresentKey = (props: IpresentKeyProps) => {
       <span
         style={{ fontWeight: 'bold' }}
         contentEditable={!props.disable}
-        onInput={props.onChange}
+        onBlur={onBlur}
+        ref={keyRef}
       >
         {props.keyValue}
       </span>

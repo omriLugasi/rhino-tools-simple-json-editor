@@ -12,3 +12,25 @@ export enum ERowOptionalTypes {
   object = 'object',
   array = 'array',
 }
+
+
+export type RowItemType = {
+  key: string,
+  value: unknown,
+  getType: () => string,
+  onChange: (key: string, value: unknown) => void
+}
+
+
+export type VirtualTreeType = {
+  value: unknown,
+  __type__: string,
+  __custom_key__: string
+}
+
+
+export type UpdateNodeEventType = {
+  value: unknown,
+  key: string,
+  __custom_key__: string
+}
