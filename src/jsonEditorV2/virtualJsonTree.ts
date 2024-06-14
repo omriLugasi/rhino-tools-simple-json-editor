@@ -6,7 +6,6 @@ import {
     UpdateNodeTypeEventType,
     VirtualTreeType
 } from "../jsonEditor/types.ts";
-import { v4 as uuid } from 'uuid';
 
 
 export class VirtualJsonTree {
