@@ -53,7 +53,8 @@ export class VirtualJsonTree {
                    obj: data.value
                })
             })
-            // needs to work on the solution a little bit more.
+            // TODO: needs to work on the solution a little bit more.
+
             // data.children = Object.keys(value).reduce((acc: Record<string, VirtualTreeType>, key: string) => {
             //     acc[key] = {
             //         value: value[key],
