@@ -7,6 +7,7 @@ import {BooleanValue} from "./booleanValue.tsx";
 import {NullValue} from "./nullValue.tsx";
 import {TypeSelector} from "./typeSelector.tsx";
 import {AddNewNodeType, ERowOptionalTypes} from "../../jsonEditor/types.ts";
+import {ObjectValue} from "./objectValue.tsx";
 
 interface Iprops {
     keyValue: string
@@ -55,6 +56,9 @@ export const Row = (props: Iprops) => {
             }
             {
                 props.type === ERowOptionalTypes.nullValue ? <NullValue /> : null
+            }
+            {
+                props.type === ERowOptionalTypes.object ? <ObjectValue value={props.value} onChange={console.log} /> : null
             }
             <TypeSelector value={props.type} onChange={props.onTypeChange}/>
         </div>

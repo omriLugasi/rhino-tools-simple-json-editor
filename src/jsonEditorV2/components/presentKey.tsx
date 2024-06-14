@@ -19,7 +19,7 @@ export const PresentKey = (props: IpresentKeyProps) => {
   return (
     <div className={classes.keyItem}>
       {props.showDropdownArrow ? (
-        <span onClick={props.onDropDownClicked}>{'>'}</span>
+        <span onClick={props.onDropDownClicked}>{' > '}</span>
       ) : (
         <span />
       )}

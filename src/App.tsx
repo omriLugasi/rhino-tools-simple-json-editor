@@ -10,7 +10,12 @@ function App() {
         string: 'string',
         number: 0,
         boolean: false,
-        nullValue: null
+        nullValue: null,
+        obj: {
+            number: 1,
+            b: '2',
+            c: false
+        }
     } } onValueChange={console.log} />
         <hr />
       <JsonEditor

@@ -18,17 +18,54 @@ export class VirtualJsonTree {
         this.buildTree()
     }
 
+    private getTypeByValue(value: unknown): ERowOptionalTypes {
+        if (Array.isArray(value)) {
+            return ERowOptionalTypes.array
+        } else if (typeof value === ERowOptionalTypes.object && value !== null) {
+            return ERowOptionalTypes.object
+        } else if (value === null) {
+            return ERowOptionalTypes.nullValue
+        } else {
+            return typeof value as ERowOptionalTypes
+        }
+    }
+
     /**
      * @description
      * Assign new node to the virtual tree
      */
-    private assignNode(params: { key: string, value:unknown, type: string }): void {
-        const { key, value, type} = params
-        this.virtualTree[key] = {
+    private assignNode(params: { key: string, value: unknown, parentKey?: string,  obj?: Record<string, unknown> }): void {
+        const { key, value, obj = this.virtualTree, parentKey} = params
+        const type = this.getTypeByValue(value)
+        const data: VirtualTreeType = {
             value,
             __type__: type,
-            __custom_key__: uuid()
+            __custom_key__: `${parentKey ?? ''}${key}.value`
         }
+        if (type === ERowOptionalTypes.object) {
+
+            Object.keys(value).forEach((key: string) => {
+               const item = value[key]
+                console.log({ beforeAssign: item, value })
+               this.assignNode({
+                   key: key,
+                   parentKey: `${data.__custom_key__}.`,
+                   value: item,
+                   obj: data.value
+               })
+            })
+            // needs to work on the solution a little bit more.
+            // data.children = Object.keys(value).reduce((acc: Record<string, VirtualTreeType>, key: string) => {
+            //     acc[key] = {
+            //         value: value[key],
+            //         __type__:  this.getTypeByValue(value[key]),
+            //         __custom_key__: `${data.__custom_key__}.${key}`,
+            //     }
+            //     return acc
+            // }, {})
+            data.__show_children__ = true
+        }
+        obj[key] = data
     }
 
     /**
@@ -37,19 +74,10 @@ export class VirtualJsonTree {
      */
     private buildTree(): void {
         Object.keys(this.tree).forEach((key: string) => {
-            if (typeof this.tree[key] !== 'object') {
-                this.assignNode({
-                    key,
-                    value: this.tree[key],
-                    type: typeof this.tree[key]
-                })
-            } else if (typeof this.tree[key] === 'object' && this.tree[key] === null) {
-                this.assignNode({
-                    key,
-                    value: this.tree[key],
-                    type: ERowOptionalTypes.nullValue
-                })
-            }
+            this.assignNode({
+                key,
+                value: this.tree[key]
+            })
         })
     }
 
@@ -79,19 +107,24 @@ export class VirtualJsonTree {
      * Update node key and value by the __custom_key__ property.
      */
     private updateNode(params: UpdateNodeEventType): void {
-        this.virtualTree = Object.keys(this.virtualTree).reduce((acc: Record<string, VirtualTreeType>, key: string) => {
-            if (params.__custom_key__ === this.virtualTree[key].__custom_key__) {
-                const item = this.virtualTree[key]
-                acc[params.key] = {
-                    ...item,
-                    value: params.value,
-                }
-            } else {
-                acc[key] = this.virtualTree[key]
+        const example = function(obj, prop, val){
+            var props = prop.split('.')
+                , final = props.pop(), p
+            while(p = props.shift()){
+                if (typeof obj[p] === 'undefined')
+                    return undefined;
+                obj = obj[p]
             }
-            return acc
-        }, {})
+            return val ? (obj[final] = val) : obj[final]
+        }
+        console.log({
+            operation: 'change happen at',
+            key: params.__custom_key__,
+            value: params.value
+        })
+        example(this.virtualTree, params.__custom_key__, params.value)
         this.onChange()
+        console.log(this.virtualTree)
     }
 
     /**
@@ -140,7 +173,6 @@ export class VirtualJsonTree {
         this.assignNode({
             key,
             value,
-            type: typeof value
         })
         this.onChange()
     }
@@ -150,9 +182,9 @@ export class VirtualJsonTree {
      * Provide all the main tree properties as array with all the needed parameters.
      */
     public getAll(): RowItemType[] {
-        return Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
-            const item = this.virtualTree[key]
-            acc.push({
+
+        const createItem = (key: string, item: VirtualTreeType) => {
+            return {
                 key,
                 value: item.value,
                 getType: () => item.__type__,
@@ -172,7 +204,27 @@ export class VirtualJsonTree {
                 uniqueKey: (): string => {
                     return item.__custom_key__
                 }
-            })
+            }
+        }
+
+        return Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
+            const item = this.virtualTree[key]
+            acc.push(createItem(key, this.virtualTree[key]))
+
+            /**
+             * @description
+             * If the user click to open an object, we will need to show the properties of the object
+             * as part of the rows.
+             */
+            if (item.__type__ === ERowOptionalTypes.object && item.__show_children__) {
+                const data: Record<string, VirtualTreeType> = item.value ?? {}
+                console.log({ data })
+                Object.keys(data)?.forEach((key: string) => {
+                    const currentItem = data[key]
+                    console.log({ key, currentItem })
+                    acc.push(createItem(key, currentItem))
+                })
+            }
             return acc
         }, [])
     }

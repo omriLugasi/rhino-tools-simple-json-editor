@@ -28,13 +28,17 @@ export type VirtualTreeType = {
   value: unknown,
   __type__: string,
   __custom_key__: string
+  children?: VirtualTreeType[],
+  __show_children__?: boolean
+  __parent_custom_key__?: string
 }
 
 
 export type UpdateNodeEventType = {
   value: unknown,
   key: string,
-  __custom_key__: string
+  __custom_key__: string,
+  __parent_custom_key__?: string
 }
 
 export type UpdateNodeTypeEventType = {
