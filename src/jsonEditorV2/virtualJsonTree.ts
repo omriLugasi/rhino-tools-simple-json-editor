@@ -1,7 +1,8 @@
 import {
     AddNewNodeType,
     ERowOptionalTypes,
-    RowItemType, ToggleNodeType,
+    RowItemType,
+    ToggleNodeType,
     UpdateNodeEventType,
     UpdateNodeTypeEventType,
     VirtualTreeType
@@ -36,8 +37,17 @@ export class VirtualJsonTree {
     private assignNode(params: { key: string, value: unknown, parentKey?: string, __visible__?: boolean }): void {
         const { key, value, parentKey, __visible__} = params
         const type = this.getTypeByValue(value)
+
+        let val: unknown = value
+
+        if (type === ERowOptionalTypes.object) {
+            val = {}
+        } else if (type === ERowOptionalTypes.array) {
+            val = []
+        }
+
         const data: VirtualTreeType = {
-            __vjt_value__: type !== ERowOptionalTypes.object ? value : {},
+            __vjt_value__: val,
             __type__: type,
             __custom_key__: `${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`,
             __display_key__: key,
@@ -56,6 +66,15 @@ export class VirtualJsonTree {
                    value: item,
                    __visible__: false
                })
+            })
+        } else if (type === ERowOptionalTypes.array) {
+            value.forEach((val: unknown, index: number) => {
+                this.assignNode({
+                    key: `${index}`,
+                    parentKey: `${data.__custom_key__}`,
+                    value: val,
+                    __visible__: false
+                })
             })
         }
     }
@@ -224,7 +243,7 @@ export class VirtualJsonTree {
                     })
                 },
                 onDropDownClicked: (): void => {
-                  if (item.__type__ !== ERowOptionalTypes.object) {
+                  if (item.__type__ !== ERowOptionalTypes.object && item.__type__ !== ERowOptionalTypes.array) {
                       return
                   }
                     this.toggleNode({

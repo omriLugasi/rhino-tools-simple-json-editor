@@ -11,6 +11,17 @@ function App() {
         number: 0,
         boolean: false,
         nullValue: null,
+        arr: [
+            'x',
+            'y',
+            {
+                a: [
+                    {
+                        a: '123213'
+                    }
+                ]
+            }
+        ],
         obj: {
             number: 1,
             b: '2',

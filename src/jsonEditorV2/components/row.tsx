@@ -8,6 +8,7 @@ import {NullValue} from "./nullValue.tsx";
 import {TypeSelector} from "./typeSelector.tsx";
 import {AddNewNodeType, ERowOptionalTypes, ToggleNodeType} from "../../jsonEditor/types.ts";
 import {ObjectValue} from "./objectValue.tsx";
+import {ArrayValue} from "./arrayValue.tsx";
 
 interface Iprops {
     keyValue: string
@@ -60,6 +61,9 @@ export const Row = (props: Iprops) => {
             }
             {
                 props.type === ERowOptionalTypes.object ? <ObjectValue value={props.value} onChange={console.log} /> : null
+            }
+            {
+                props.type === ERowOptionalTypes.array ? <ArrayValue value={props.value} onChange={console.log} /> : null
             }
             <TypeSelector value={props.type} onChange={props.onTypeChange}/>
         </div>

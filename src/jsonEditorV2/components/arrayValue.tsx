@@ -5,10 +5,10 @@ interface Iprops {
     onChange: (bool: boolean) => void
 }
 
-export const ObjectValue = (props: Iprops) => {
+export const ArrayValue = (props: Iprops) => {
     return (
         <div>
-            {'{...}'}
+            {'[...]'}
         </div>
     )
 }
