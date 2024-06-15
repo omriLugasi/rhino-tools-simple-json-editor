@@ -159,8 +159,18 @@ export class VirtualJsonTree {
             value: params.newType,
             tree:  this.virtualTree,
         })
+        const currentItem = this.virtualTree[params.__custom_key__]
+
+        if (currentItem.__type__ === ERowOptionalTypes.object) {
+            Object.keys(this.virtualTree).forEach(key => {
+                const current  = this.virtualTree[key]
+                if (current.__custom_key__.startsWith(params.__custom_key__)) {
+                    delete this.virtualTree[key]
+                }
+            })
+        }
         this.virtualTree[params.__custom_key__] = {
-            ...this.virtualTree[params.__custom_key__],
+            ...currentItem,
             __type__: params.newType,
             __vjt_value__: this.getDefaultValueByType(params.newType)
         }
@@ -194,6 +204,7 @@ export class VirtualJsonTree {
             }, {})
 
             const mainObj = JSON.parse(JSON.stringify(response))
+            console.log(JSON.stringify(mainObj))
 
             cb(Object.entries(mainObj).reduce((r, [k, v]) => {
                 k.split('.').reduce((a, e, i, ar) => {
@@ -265,7 +276,9 @@ export class VirtualJsonTree {
                 acc.push(createItem(key, item))
             }
             return acc
-        }, [])
+        }, []).sort((a, b) => {
+            return a.uniqueKey().localeCompare(b.uniqueKey())
+        })
     }
 
 
