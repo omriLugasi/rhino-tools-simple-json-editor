@@ -152,7 +152,6 @@ export class VirtualJsonTree {
         Object.keys(this.virtualTree).forEach(key => {
             const current  = this.virtualTree[key]
             if (current.__parent_key__ === params.__custom_key__) {
-                console.log(`Toggle for ${current.__custom_key__}`)
                 this.virtualTree[current.__custom_key__] = {
                     ...this.virtualTree[current.__custom_key__],
                     __visible__: !current.__visible__
@@ -168,12 +167,16 @@ export class VirtualJsonTree {
      */
     public onJsonChange(cb: (json: Record<string, unknown>) => void) {
         this.onChange = () => {
-            // const response = Object.keys(this.virtualTree).reduce((acc: Record<string, unknown>, key: string) => {
-            //     acc[key] = this.virtualTree[key].value
-            //     return acc
-            // }, {})
+            const response = Object.keys(this.virtualTree).reduce((acc: Record<string, unknown>, key: string) => {
+                const item = this.virtualTree[key]
+                acc[item.__custom_key__.replace(/\.__vjt_value__/g, '') as string] = item.__vjt_value__
+                return acc
+            }, {})
 
-            cb(this.virtualTree)
+            cb({
+                vtree: this.virtualTree,
+                response
+            })
         }
     }
 
