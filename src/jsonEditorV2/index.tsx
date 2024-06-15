@@ -34,6 +34,8 @@ export const JsonEditorV2 = (props: Iprops) => {
                     onTypeChange={item.onTypeChange}
                     onDropDownClicked={item.onDropDownClicked}
                     addNewNode={(params) => jsonArr.addNewNode(params)}
+                    getIndentation={item.getIndentation}
+                    isOpen={item.isOpen}
                 />
     })
 }

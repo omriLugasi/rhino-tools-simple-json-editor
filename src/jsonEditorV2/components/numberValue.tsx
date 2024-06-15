@@ -1,4 +1,5 @@
 import React, {useCallback, useRef, useState} from "react";
+import classes from "../../jsonEditor/jsonEditor.module.scss";
 
 interface Iprops {
     value: number,
@@ -24,7 +25,7 @@ export const NumberValue = (props: Iprops) => {
         }, [num])
 
     return (
-        <div>
+        <div className={classes.rowValue}>
             <input
                 min={0}
                 type='number'

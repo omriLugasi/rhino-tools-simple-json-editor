@@ -161,7 +161,7 @@ export class VirtualJsonTree {
         })
         const currentItem = this.virtualTree[params.__custom_key__]
 
-        if (currentItem.__type__ === ERowOptionalTypes.object) {
+        if (currentItem.__type__ === ERowOptionalTypes.object || currentItem.__type__ === ERowOptionalTypes.array) {
             Object.keys(this.virtualTree).forEach(key => {
                 const current  = this.virtualTree[key]
                 if (current.__custom_key__.startsWith(params.__custom_key__)) {
@@ -185,6 +185,11 @@ export class VirtualJsonTree {
                     ...this.virtualTree[current.__custom_key__],
                     __visible__: !current.__visible__
                 }
+            } else if (params.__custom_key__ === current.__custom_key__) {
+                this.virtualTree[current.__custom_key__] = {
+                    ...this.virtualTree[current.__custom_key__],
+                    __show_children__: !current.__show_children__
+                }
             }
         })
         this.onChange()
@@ -204,7 +209,6 @@ export class VirtualJsonTree {
             }, {})
 
             const mainObj = JSON.parse(JSON.stringify(response))
-            console.log(JSON.stringify(mainObj))
 
             cb(Object.entries(mainObj).reduce((r, [k, v]) => {
                 k.split('.').reduce((a, e, i, ar) => {
@@ -266,6 +270,12 @@ export class VirtualJsonTree {
                 },
                 getKeyValue: (): string  => {
                     return item.__display_key__ as string
+                },
+                getIndentation: (): number => {
+                    return item.__custom_key__.split('.__vjt_value__').length -2
+                },
+                isOpen: (): boolean => {
+                    return !!item.__show_children__
                 }
             }
         }

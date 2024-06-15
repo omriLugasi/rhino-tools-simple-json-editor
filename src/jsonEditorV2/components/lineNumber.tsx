@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react'
+import React, {useState, useCallback} from 'react'
 import {createPortal} from 'react-dom'
 import {AddNewNodeType, ERowOptionalTypes} from "../../jsonEditor/types.ts";
 import classes from '../../jsonEditor/jsonEditor.module.scss'
@@ -7,6 +7,9 @@ interface IpropsLine {
     index: number,
     type: ERowOptionalTypes,
     addNewNode: (params: AddNewNodeType) => void
+    showDropdownArrow?: boolean
+    onDropDownClicked?: () => void
+    isOpen: () => boolean
 }
 
 
@@ -26,8 +29,8 @@ export const Line = (props: IpropsLine) => {
     }, [])
 
     return (
-        <div>
-            <div style={{ width: 10, positio: 'relative', cursor: 'pointer', marginRight: 20 }}
+        <div style={{ display: 'flex' }}>
+            <div style={{ width: 10, position: 'relative', cursor: 'pointer', marginRight: 20 }}
                  onMouseEnter={() => {
                      setHover(true)
                  }}
@@ -37,6 +40,11 @@ export const Line = (props: IpropsLine) => {
                  onClick={() => { setOpen(!open)}}>
                 {hover ? '+' : props.index}
             </div>
+            {props.showDropdownArrow ? (
+                <button onClick={props.onDropDownClicked}>{props.isOpen() ? 'V' : ' > '}</button>
+            ) : (
+                <span />
+            )}
             {
                 open && (
                     createPortal(

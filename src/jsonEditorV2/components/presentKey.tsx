@@ -5,8 +5,7 @@ interface IpresentKeyProps {
   onChange: (value: string) => void
   keyValue: string
   disable: boolean
-  showDropdownArrow?: boolean
-  onDropDownClicked?: () => void
+  identation: number
 }
 
 export const PresentKey = (props: IpresentKeyProps) => {
@@ -17,12 +16,7 @@ export const PresentKey = (props: IpresentKeyProps) => {
     }, [keyRef.current, props.onChange])
 
   return (
-    <div className={classes.keyItem}>
-      {props.showDropdownArrow ? (
-        <span onClick={props.onDropDownClicked}>{' > '}</span>
-      ) : (
-        <span />
-      )}
+    <div className={classes.keyItem} style={{ marginLeft: props.identation * 24 }}>
       <span
         style={{ fontWeight: 'bold' }}
         contentEditable={!props.disable}

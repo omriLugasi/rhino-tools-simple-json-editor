@@ -9,6 +9,7 @@ import {TypeSelector} from "./typeSelector.tsx";
 import {AddNewNodeType, ERowOptionalTypes, ToggleNodeType} from "../../jsonEditor/types.ts";
 import {ObjectValue} from "./objectValue.tsx";
 import {ArrayValue} from "./arrayValue.tsx";
+import classes from './../../jsonEditor/jsonEditor.module.scss'
 
 interface Iprops {
     keyValue: string
@@ -20,6 +21,7 @@ interface Iprops {
     onTypeChange: (newType: ERowOptionalTypes) => void
     addNewNode: (params: AddNewNodeType) => void
     onDropDownClicked: (params: ToggleNodeType) => void
+    getIndentation: () => void
 }
 
 
@@ -34,18 +36,20 @@ export const Row = (props: Iprops) => {
     }, [props.keyValue])
 
     return (
-        <div style={{ display: 'flex' }}>
+        <div className={classes.row}>
             <Line
                 index={props.index}
                 type={props.type}
                 addNewNode={props.addNewNode}
+                onDropDownClicked={props.onDropDownClicked}
+                showDropdownArrow={typeof props.value === 'object' && props.value !== null}
+                isOpen={props.isOpen}
             />
             <PresentKey
                 keyValue={props.keyValue}
                 disable={props.disable?.(props.keyValue, props.value) ?? false}
                 onChange={onKeyValueChange}
-                onDropDownClicked={props.onDropDownClicked}
-                showDropdownArrow={typeof props.value === 'object' && props.value !== null}
+                identation={props.getIndentation()}
             />
             {
                 props.type === ERowOptionalTypes.string ? <StringValue value={props.value} onChange={onValueChange} /> : null
@@ -60,10 +64,10 @@ export const Row = (props: Iprops) => {
                 props.type === ERowOptionalTypes.nullValue ? <NullValue /> : null
             }
             {
-                props.type === ERowOptionalTypes.object ? <ObjectValue value={props.value} onChange={console.log} /> : null
+                props.type === ERowOptionalTypes.object ? <ObjectValue isOpen={props.isOpen} value={props.value} onChange={console.log} /> : null
             }
             {
-                props.type === ERowOptionalTypes.array ? <ArrayValue value={props.value} onChange={console.log} /> : null
+                props.type === ERowOptionalTypes.array ? <ArrayValue isOpen={props.isOpen} value={props.value} onChange={console.log} /> : null
             }
             <TypeSelector value={props.type} onChange={props.onTypeChange}/>
         </div>

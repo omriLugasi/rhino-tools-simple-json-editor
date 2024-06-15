@@ -1,4 +1,5 @@
 import React, {useCallback, useRef, useState} from "react";
+import classes from "../../jsonEditor/jsonEditor.module.scss";
 
 interface Iprops {
     value: boolean,
@@ -16,7 +17,7 @@ export const BooleanValue = (props: Iprops) => {
         }, [ref.current])
 
     return (
-        <div>
+        <div className={classes.rowValue}>
             <select ref={ref} defaultValue={value} onChange={internalOnValueChange}>
                 <option value={true}>True</option>
                 <option value={false}>False</option>

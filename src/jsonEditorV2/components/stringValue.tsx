@@ -1,4 +1,5 @@
 import React, {useCallback, useRef} from "react";
+import classes from './../../jsonEditor/jsonEditor.module.scss'
 
 interface Iprops {
     value: string,
@@ -15,7 +16,7 @@ export const StringValue = (props: Iprops) => {
             onChange(currentValue)
         }, [ref.current])
     return (
-        <div>
+        <div className={classes.rowValue}>
             <span>"</span>
             <textarea
                 ref={ref}
