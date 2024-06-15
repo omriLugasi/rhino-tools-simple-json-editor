@@ -22,7 +22,6 @@ export const Line = (props: IpropsLine) => {
 
     const onNewNodeRequested = useCallback(() => {
         props.addNewNode({
-            key: 'new_key_' + Math.random().toString(16).substring(2, 8),
             value: ''
         })
         setOpen(false)

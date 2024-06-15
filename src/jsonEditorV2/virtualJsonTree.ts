@@ -1,5 +1,5 @@
 import {
-    AddNewNodeType,
+    AddNewNodeType, AssignNewNodeType,
     ERowOptionalTypes,
     RowItemType,
     ToggleNodeType,
@@ -34,7 +34,7 @@ export class VirtualJsonTree {
      * @description
      * Assign new node to the virtual tree
      */
-    private assignNode(params: { key: string, value: unknown, parentKey?: string, __visible__?: boolean }): void {
+    private assignNode(params: AssignNewNodeType): void {
         const { key, value, parentKey, __visible__} = params
         const type = this.getTypeByValue(value)
 
@@ -224,12 +224,8 @@ export class VirtualJsonTree {
      * @description
      * Provide to the user the option to add new node to the json tree.
      */
-    public addNewNode(params: AddNewNodeType): void {
-        const { key, value} = params
-        this.assignNode({
-            key,
-            value,
-        })
+    public addNewNode(params: AssignNewNodeType): void {
+        this.assignNode(params)
         this.onChange()
     }
 
@@ -276,6 +272,15 @@ export class VirtualJsonTree {
                 },
                 isOpen: (): boolean => {
                     return !!item.__show_children__
+                },
+                addNewNode: (params: {value: unknown }): void => {
+                    // assign to the object only if the value is object or array, otherwise assign to the parent.
+                    this.addNewNode({
+                        key: Math.random().toString(16).substring(2, 8),
+                        value: params.value,
+                        parentKey: item.__custom_key__,
+                        __visible__: true
+                    })
                 }
             }
         }
