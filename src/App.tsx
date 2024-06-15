@@ -14,7 +14,11 @@ function App() {
         obj: {
             number: 1,
             b: '2',
-            c: false
+            c: false,
+            nestedObj: {
+                g1: 'asdsa',
+                g2: 3
+            }
         }
     } } onValueChange={console.log} />
         <hr />

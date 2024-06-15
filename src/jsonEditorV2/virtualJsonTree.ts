@@ -37,7 +37,7 @@ export class VirtualJsonTree {
         const { key, value, parentKey, __visible__} = params
         const type = this.getTypeByValue(value)
         const data: VirtualTreeType = {
-            __vjt_value__: value,
+            __vjt_value__: type !== ERowOptionalTypes.object ? value : {},
             __type__: type,
             __custom_key__: `${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`,
             __display_key__: key,
@@ -167,16 +167,22 @@ export class VirtualJsonTree {
      */
     public onJsonChange(cb: (json: Record<string, unknown>) => void) {
         this.onChange = () => {
+
             const response = Object.keys(this.virtualTree).reduce((acc: Record<string, unknown>, key: string) => {
                 const item = this.virtualTree[key]
                 acc[item.__custom_key__.replace(/\.__vjt_value__/g, '') as string] = item.__vjt_value__
                 return acc
             }, {})
 
-            cb({
-                vtree: this.virtualTree,
-                response
-            })
+            const mainObj = JSON.parse(JSON.stringify(response))
+
+            cb(Object.entries(mainObj).reduce((r, [k, v]) => {
+                k.split('.').reduce((a, e, i, ar) => {
+                    return a[e] || (a[e] = ar[i + 1] ? {} : v)
+                }, r)
+
+                return r;
+            }, {}))
         }
     }
 
