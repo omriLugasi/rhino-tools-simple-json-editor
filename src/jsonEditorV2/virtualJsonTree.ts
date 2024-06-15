@@ -1,7 +1,7 @@
 import {
     AddNewNodeType,
     ERowOptionalTypes,
-    RowItemType,
+    RowItemType, ToggleNodeType,
     UpdateNodeEventType,
     UpdateNodeTypeEventType,
     VirtualTreeType
@@ -33,39 +33,31 @@ export class VirtualJsonTree {
      * @description
      * Assign new node to the virtual tree
      */
-    private assignNode(params: { key: string, value: unknown, parentKey?: string,  obj?: Record<string, unknown> }): void {
-        const { key, value, obj = this.virtualTree, parentKey} = params
+    private assignNode(params: { key: string, value: unknown, parentKey?: string, __visible__?: boolean }): void {
+        const { key, value, parentKey, __visible__} = params
         const type = this.getTypeByValue(value)
         const data: VirtualTreeType = {
-            value,
+            __vjt_value__: value,
             __type__: type,
-            __custom_key__: `${parentKey ?? ''}${key}.value`
+            __custom_key__: `${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`,
+            __display_key__: key,
+            __visible__: __visible__ ?? true,
+            __parent_key__: parentKey
         }
-        if (type === ERowOptionalTypes.object) {
 
-            Object.keys(value).forEach((key: string) => {
-               const item = value[key]
-                console.log({ beforeAssign: item, value })
+        this.virtualTree[data.__custom_key__] = data
+
+        if (type === ERowOptionalTypes.object) {
+            Object.keys(value).forEach((innerKey: string) => {
+               const item = value[innerKey]
                this.assignNode({
-                   key: key,
-                   parentKey: `${data.__custom_key__}.`,
+                   key: innerKey,
+                   parentKey: `${data.__custom_key__}`,
                    value: item,
-                   obj: data.value
+                   __visible__: false
                })
             })
-            // TODO: needs to work on the solution a little bit more.
-
-            // data.children = Object.keys(value).reduce((acc: Record<string, VirtualTreeType>, key: string) => {
-            //     acc[key] = {
-            //         value: value[key],
-            //         __type__:  this.getTypeByValue(value[key]),
-            //         __custom_key__: `${data.__custom_key__}.${key}`,
-            //     }
-            //     return acc
-            // }, {})
-            data.__show_children__ = true
         }
-        obj[key] = data
     }
 
     /**
@@ -105,26 +97,35 @@ export class VirtualJsonTree {
     /**
      * @description
      * Update node key and value by the __custom_key__ property.
+     * If the display key was updated we need to update also the __custom_key__.
      */
     private updateNode(params: UpdateNodeEventType): void {
-        const example = function(obj, prop, val){
-            var props = prop.split('.')
-                , final = props.pop(), p
-            while(p = props.shift()){
-                if (typeof obj[p] === 'undefined')
-                    return undefined;
-                obj = obj[p]
-            }
-            return val ? (obj[final] = val) : obj[final]
-        }
         console.log({
             operation: 'change happen at',
             key: params.__custom_key__,
-            value: params.value
+            value: params.value,
+            tree:  this.virtualTree,
+            newKey: params.key
         })
-        example(this.virtualTree, params.__custom_key__, params.value)
+        const currentItem = this.virtualTree[params.__custom_key__]
+
+        if (currentItem.__display_key__ !== params.key) {
+            const currentCustomKey = params.__custom_key__.replace(`.${currentItem.__display_key__}.`, `.${params.key}.`)
+            const oldItem = this.virtualTree[params.__custom_key__]
+            delete this.virtualTree[params.__custom_key__]
+            this.virtualTree[currentCustomKey] = {
+                ...oldItem,
+                __vjt_value__: params.value,
+                __custom_key__: currentCustomKey,
+                __display_key__: params.key
+            }
+        } else {
+            this.virtualTree[params.__custom_key__] = {
+                ...this.virtualTree[params.__custom_key__],
+                __vjt_value__: params.value
+            }
+        }
         this.onChange()
-        console.log(this.virtualTree)
     }
 
     /**
@@ -133,19 +134,31 @@ export class VirtualJsonTree {
      * default value of the new type.
      */
     private updateNodeType(params: UpdateNodeTypeEventType): void {
-        this.virtualTree = Object.keys(this.virtualTree).reduce((acc: Record<string, VirtualTreeType>, key: string) => {
-            if (params.__custom_key__ === this.virtualTree[key].__custom_key__) {
-                const item = this.virtualTree[key]
-                acc[key] = {
-                    ...item,
-                    __type__: params.newType,
-                    value: this.getDefaultValueByType(params.newType)
+        console.log({
+            operation: 'chang type happen at',
+            key: params.__custom_key__,
+            value: params.newType,
+            tree:  this.virtualTree,
+        })
+        this.virtualTree[params.__custom_key__] = {
+            ...this.virtualTree[params.__custom_key__],
+            __type__: params.newType,
+            __vjt_value__: this.getDefaultValueByType(params.newType)
+        }
+        this.onChange()
+    }
+
+    private toggleNode(params: ToggleNodeType): void {
+        Object.keys(this.virtualTree).forEach(key => {
+            const current  = this.virtualTree[key]
+            if (current.__parent_key__ === params.__custom_key__) {
+                console.log(`Toggle for ${current.__custom_key__}`)
+                this.virtualTree[current.__custom_key__] = {
+                    ...this.virtualTree[current.__custom_key__],
+                    __visible__: !current.__visible__
                 }
-            } else {
-                acc[key] = this.virtualTree[key]
             }
-            return acc
-        }, {})
+        })
         this.onChange()
     }
 
@@ -155,12 +168,12 @@ export class VirtualJsonTree {
      */
     public onJsonChange(cb: (json: Record<string, unknown>) => void) {
         this.onChange = () => {
-            const response = Object.keys(this.virtualTree).reduce((acc: Record<string, unknown>, key: string) => {
-                acc[key] = this.virtualTree[key].value
-                return acc
-            }, {})
+            // const response = Object.keys(this.virtualTree).reduce((acc: Record<string, unknown>, key: string) => {
+            //     acc[key] = this.virtualTree[key].value
+            //     return acc
+            // }, {})
 
-            cb(response)
+            cb(this.virtualTree)
         }
     }
 
@@ -186,7 +199,7 @@ export class VirtualJsonTree {
         const createItem = (key: string, item: VirtualTreeType) => {
             return {
                 key,
-                value: item.value,
+                value: item.__vjt_value__,
                 getType: () => item.__type__,
                 onChange: (key: string, value: unknown) => {
                     this.updateNode({
@@ -201,29 +214,27 @@ export class VirtualJsonTree {
                         newType
                     })
                 },
+                onDropDownClicked: (): void => {
+                  if (item.__type__ !== ERowOptionalTypes.object) {
+                      return
+                  }
+                    this.toggleNode({
+                        __custom_key__: item.__custom_key__,
+                    })
+                },
                 uniqueKey: (): string => {
                     return item.__custom_key__
+                },
+                getKeyValue: (): string  => {
+                    return item.__display_key__ as string
                 }
             }
         }
 
         return Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
             const item = this.virtualTree[key]
-            acc.push(createItem(key, this.virtualTree[key]))
-
-            /**
-             * @description
-             * If the user click to open an object, we will need to show the properties of the object
-             * as part of the rows.
-             */
-            if (item.__type__ === ERowOptionalTypes.object && item.__show_children__) {
-                const data: Record<string, VirtualTreeType> = item.value ?? {}
-                console.log({ data })
-                Object.keys(data)?.forEach((key: string) => {
-                    const currentItem = data[key]
-                    console.log({ key, currentItem })
-                    acc.push(createItem(key, currentItem))
-                })
+            if (item.__visible__) {
+                acc.push(createItem(key, item))
             }
             return acc
         }, [])

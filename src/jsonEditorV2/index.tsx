@@ -26,12 +26,13 @@ export const JsonEditorV2 = (props: Iprops) => {
     return jsonArr.getAll().map((item: RowItemType, index: number) => {
         return <Row
                     key={item.uniqueKey()}
-                    keyValue={item.key}
+                    keyValue={item.getKeyValue()}
                     value={item.value}
                     type={item.getType()}
                     index={index + 1}
                     onChange={item.onChange}
                     onTypeChange={item.onTypeChange}
+                    onDropDownClicked={item.onDropDownClicked}
                     addNewNode={(params) => jsonArr.addNewNode(params)}
                 />
     })

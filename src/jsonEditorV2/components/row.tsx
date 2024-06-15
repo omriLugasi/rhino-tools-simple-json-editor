@@ -6,7 +6,7 @@ import {NumberValue} from "./numberValue.tsx";
 import {BooleanValue} from "./booleanValue.tsx";
 import {NullValue} from "./nullValue.tsx";
 import {TypeSelector} from "./typeSelector.tsx";
-import {AddNewNodeType, ERowOptionalTypes} from "../../jsonEditor/types.ts";
+import {AddNewNodeType, ERowOptionalTypes, ToggleNodeType} from "../../jsonEditor/types.ts";
 import {ObjectValue} from "./objectValue.tsx";
 
 interface Iprops {
@@ -18,6 +18,7 @@ interface Iprops {
     onChange: (key: string, value: unknown) => void
     onTypeChange: (newType: ERowOptionalTypes) => void
     addNewNode: (params: AddNewNodeType) => void
+    onDropDownClicked: (params: ToggleNodeType) => void
 }
 
 
@@ -42,7 +43,7 @@ export const Row = (props: Iprops) => {
                 keyValue={props.keyValue}
                 disable={props.disable?.(props.keyValue, props.value) ?? false}
                 onChange={onKeyValueChange}
-                onDropDownClicked={console.log}
+                onDropDownClicked={props.onDropDownClicked}
                 showDropdownArrow={typeof props.value === 'object' && props.value !== null}
             />
             {

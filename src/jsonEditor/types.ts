@@ -25,28 +25,33 @@ export type RowItemType = {
 
 
 export type VirtualTreeType = {
-  value: unknown,
+  __vjt_value__: unknown,
   __type__: string,
   __custom_key__: string
-  children?: VirtualTreeType[],
   __show_children__?: boolean
-  __parent_custom_key__?: string
+  __display_key__?: string
+  __visible__: boolean
+  __parent_key__?: string
 }
 
 
 export type UpdateNodeEventType = {
   value: unknown,
   key: string,
-  __custom_key__: string,
-  __parent_custom_key__?: string
+  __custom_key__: VirtualTreeType['__custom_key__'],
 }
 
 export type UpdateNodeTypeEventType = {
   newType: ERowOptionalTypes,
-  __custom_key__: string
+  __custom_key__: VirtualTreeType['__custom_key__'],
 }
 
 export type AddNewNodeType = {
   value: unknown,
   key: string,
+}
+
+
+export type ToggleNodeType = {
+  __custom_key__: VirtualTreeType['__custom_key__'],
 }
