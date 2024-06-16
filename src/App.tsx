@@ -22,6 +22,7 @@ function App() {
                 ]
             }
         ],
+        emptyObj: {},
         obj: {
             number: 1,
             b: '2',

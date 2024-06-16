@@ -9,6 +9,7 @@ interface IpropsLine {
     addNewNode: (params: AddNewNodeType) => void
     showDropdownArrow?: boolean
     onDropDownClicked?: () => void
+    duplicateNode: () => void
     isOpen: () => boolean
 }
 
@@ -24,6 +25,11 @@ export const Line = (props: IpropsLine) => {
         props.addNewNode({
             value: ''
         })
+        setOpen(false)
+    }, [])
+
+    const onDuplicateNodeRequested = useCallback(() => {
+        props.duplicateNode()
         setOpen(false)
     }, [])
 
@@ -54,7 +60,7 @@ export const Line = (props: IpropsLine) => {
                             <div className={classes.popupContainerItem}>
                                 Delete Field
                             </div>
-                            <div className={classes.popupContainerItem}>
+                            <div className={classes.popupContainerItem} onClick={onDuplicateNodeRequested}>
                                 Duplicate Field
                             </div>
                             {

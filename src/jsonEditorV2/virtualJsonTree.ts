@@ -1,5 +1,5 @@
 import {
-    AddNewNodeType, AssignNewNodeType,
+    AssignNewNodeType, DuplicateNodeType,
     ERowOptionalTypes,
     RowItemType,
     ToggleNodeType,
@@ -240,6 +240,7 @@ export class VirtualJsonTree {
                 key,
                 value: item.__vjt_value__,
                 getType: () => item.__type__,
+                getCustomKey: (): string => item.__custom_key__,
                 onChange: (key: string, value: unknown) => {
                     this.updateNode({
                         key,
@@ -262,7 +263,7 @@ export class VirtualJsonTree {
                     })
                 },
                 uniqueKey: (): string => {
-                    return item.__custom_key__
+                    return item.__custom_key__ + item.__type__
                 },
                 getKeyValue: (): string  => {
                     return item.__display_key__ as string
@@ -274,12 +275,27 @@ export class VirtualJsonTree {
                     return !!item.__show_children__
                 },
                 addNewNode: (params: {value: unknown }): void => {
-                    // assign to the object only if the value is object or array, otherwise assign to the parent.
+                    const type = this.getTypeByValue(item.__vjt_value__)
+                    let parentKey = undefined
+                    if (type === ERowOptionalTypes.object || type === ERowOptionalTypes.array) {
+                        parentKey = item.__custom_key__
+                    } else {
+                        parentKey = item.__parent_key__
+                    }
                     this.addNewNode({
                         key: Math.random().toString(16).substring(2, 8),
                         value: params.value,
-                        parentKey: item.__custom_key__,
+                        parentKey,
                         __visible__: true
+                    })
+                },
+                duplicateNode: (): void => {
+                    const current = this.virtualTree[item.__custom_key__]
+                    this.addNewNode({
+                        key: Math.random().toString(16).substring(2, 8),
+                        value: current.__vjt_value__,
+                        parentKey: current.__parent_key__,
+                        __visible__: current.__visible__
                     })
                 }
             }
@@ -292,7 +308,7 @@ export class VirtualJsonTree {
             }
             return acc
         }, []).sort((a, b) => {
-            return a.uniqueKey().localeCompare(b.uniqueKey())
+            return a.getCustomKey().localeCompare(b.getCustomKey())
         })
     }
 

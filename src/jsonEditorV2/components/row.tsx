@@ -20,6 +20,7 @@ interface Iprops {
     onChange: (key: string, value: unknown) => void
     onTypeChange: (newType: ERowOptionalTypes) => void
     addNewNode: (params: AddNewNodeType) => void
+    duplicateNode: () => void
     onDropDownClicked: (params: ToggleNodeType) => void
     getIndentation: () => void
 }
@@ -41,6 +42,7 @@ export const Row = (props: Iprops) => {
                 index={props.index}
                 type={props.type}
                 addNewNode={props.addNewNode}
+                duplicateNode={props.duplicateNode}
                 onDropDownClicked={props.onDropDownClicked}
                 showDropdownArrow={typeof props.value === 'object' && props.value !== null}
                 isOpen={props.isOpen}

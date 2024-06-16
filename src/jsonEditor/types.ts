@@ -21,11 +21,13 @@ export type RowItemType = {
   onChange: (key: string, value: unknown) => void
   onTypeChange: (newType: ERowOptionalTypes) => void
   uniqueKey: () => string
+  getCustomKey: () => string
   addNewNode: (value: unknown) => void
   getIndentation: () => number
   getKeyValue: () => string
   isOpen: () => boolean
   onDropDownClicked: () => void
+  duplicateNode: () => void
 }
 
 
@@ -55,6 +57,7 @@ export type UpdateNodeTypeEventType = {
 export type ToggleNodeType = {
   __custom_key__: VirtualTreeType['__custom_key__'],
 }
+
 
 export type AssignNewNodeType = {
   key: string,
