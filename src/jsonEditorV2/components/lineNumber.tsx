@@ -7,6 +7,7 @@ interface IpropsLine {
     index: number,
     type: ERowOptionalTypes,
     addNewNode: (params: AddNewNodeType) => void
+    addNewNodeForObj: (params: AddNewNodeType) => void
     showDropdownArrow?: boolean
     onDropDownClicked?: () => void
     duplicateNode: () => void
@@ -30,6 +31,13 @@ export const Line = (props: IpropsLine) => {
 
     const onDuplicateNodeRequested = useCallback(() => {
         props.duplicateNode()
+        setOpen(false)
+    }, [])
+
+    const onAddNewNodeForObjRequested = useCallback(() => {
+        props.addNewNodeForObj({
+            value: ''
+        })
         setOpen(false)
     }, [])
 
@@ -66,7 +74,7 @@ export const Line = (props: IpropsLine) => {
                             {
                                 props.type === ERowOptionalTypes.array ?
                                     (
-                                        <div className={classes.popupContainerItem}>
+                                        <div className={classes.popupContainerItem} onClick={onAddNewNodeForObjRequested}>
                                             Add Item into Array
                                         </div>
                                     ) : null
@@ -74,7 +82,7 @@ export const Line = (props: IpropsLine) => {
                             {
                                 props.type === ERowOptionalTypes.object ?
                                     (
-                                        <div className={classes.popupContainerItem}>
+                                        <div className={classes.popupContainerItem} onClick={onAddNewNodeForObjRequested}>
                                             Add new object property
                                         </div>
                                     ) : null

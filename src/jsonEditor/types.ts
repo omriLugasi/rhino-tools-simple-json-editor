@@ -23,6 +23,7 @@ export type RowItemType = {
   uniqueKey: () => string
   getCustomKey: () => string
   addNewNode: (value: unknown) => void
+  addNewNodeForObj: (value: unknown) => void
   getIndentation: () => number
   getKeyValue: () => string
   isOpen: () => boolean

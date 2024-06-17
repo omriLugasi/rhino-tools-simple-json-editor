@@ -274,18 +274,26 @@ export class VirtualJsonTree {
                 isOpen: (): boolean => {
                     return !!item.__show_children__
                 },
-                addNewNode: (params: {value: unknown }): void => {
+                addNewNodeForObj: (params: {value: unknown }): void => {
                     const type = this.getTypeByValue(item.__vjt_value__)
                     let parentKey = undefined
                     if (type === ERowOptionalTypes.object || type === ERowOptionalTypes.array) {
                         parentKey = item.__custom_key__
                     } else {
-                        parentKey = item.__parent_key__
+                       return
                     }
                     this.addNewNode({
                         key: Math.random().toString(16).substring(2, 8),
                         value: params.value,
                         parentKey,
+                        __visible__: true
+                    })
+                },
+                addNewNode: (params: {value: unknown }): void => {
+                    this.addNewNode({
+                        key: Math.random().toString(16).substring(2, 8),
+                        value: params.value,
+                        parentKey: item.__parent_key__,
                         __visible__: true
                     })
                 },
