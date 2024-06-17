@@ -292,7 +292,7 @@ export class VirtualJsonTree {
                 duplicateNode: (): void => {
                     const current = this.virtualTree[item.__custom_key__]
                     this.addNewNode({
-                        key: Math.random().toString(16).substring(2, 8),
+                        key: `${current.__display_key__}-copy`,
                         value: current.__vjt_value__,
                         parentKey: current.__parent_key__,
                         __visible__: current.__visible__
