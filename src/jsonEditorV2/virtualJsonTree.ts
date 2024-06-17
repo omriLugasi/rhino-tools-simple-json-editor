@@ -282,8 +282,13 @@ export class VirtualJsonTree {
                     } else {
                        return
                     }
+
+                    let newKey = Math.random().toString(16).substring(2, 8)
+                    if (type === ERowOptionalTypes.array) {
+                        // TODO: need to search here for all components understand what is the last number and then set +1 for it,
+                    }
                     this.addNewNode({
-                        key: Math.random().toString(16).substring(2, 8),
+                        key: newKey,
                         value: params.value,
                         parentKey,
                         __visible__: true
