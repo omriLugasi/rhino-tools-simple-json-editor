@@ -41,6 +41,7 @@ export type VirtualTreeType = {
   __display_key__?: string
   __visible__: boolean
   __parent_key__?: string
+  __order__: number
 }
 
 

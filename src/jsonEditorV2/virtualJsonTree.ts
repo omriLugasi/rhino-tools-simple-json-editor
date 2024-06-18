@@ -1,5 +1,5 @@
 import {
-    AssignNewNodeType, DuplicateNodeType,
+    AssignNewNodeType,
     ERowOptionalTypes,
     RowItemType,
     ToggleNodeType,
@@ -11,6 +11,7 @@ import {
 
 export class VirtualJsonTree {
     private virtualTree: Record<string, VirtualTreeType> = {}
+    private order: number = 0
     private onChange: () => void = () => {}
 
 
@@ -46,13 +47,22 @@ export class VirtualJsonTree {
             val = []
         }
 
+        let currentOrder: number = 0
+        const parent = this.virtualTree[parentKey as string]
+        if (!!parent) {
+            currentOrder = parent.__order__ + 0.1
+        } else {
+            currentOrder = (this.order += 1000) // I think that number will be a good fit for this case of ordering.
+        }
+
         const data: VirtualTreeType = {
             __vjt_value__: val,
             __type__: type,
             __custom_key__: `${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`,
             __display_key__: key,
             __visible__: __visible__ ?? true,
-            __parent_key__: parentKey
+            __parent_key__: parentKey,
+            __order__: currentOrder
         }
 
         this.virtualTree[data.__custom_key__] = data
@@ -330,6 +340,10 @@ export class VirtualJsonTree {
                 duplicateNode: (): void => {
                     const current = this.virtualTree[item.__custom_key__]
                     const { key, parentKey } = this.getItemPaths(current, { duplicate: true })
+                    // if the item already exists, do nothing.
+                    if (this.virtualTree[key]) {
+                        return
+                    }
                     this.addNewNode({
                         key,
                         value: current.__vjt_value__,

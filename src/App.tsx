@@ -7,30 +7,11 @@ function App() {
   return (
     <>
     <JsonEditorV2 value={{
-        string: 'string',
-        number: 0,
-        boolean: false,
-        nullValue: null,
-        arr: [
-            'x',
-            'y',
-            {
-                a: [
-                    {
-                        a: '123213'
-                    }
-                ]
-            }
-        ],
-        emptyObj: {},
-        obj: {
-            number: 1,
-            b: '2',
-            c: false,
-            nestedObj: {
-                g1: 'asdsa',
-                g2: 3
-            }
+        arr: new Array(12).fill(0),
+        object: {
+            x: 1,
+            y: 'sadasd',
+            z: true
         }
     } } onValueChange={console.log} />
     </>
