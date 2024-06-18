@@ -16,7 +16,7 @@ interface Iprops {
     value: unknown
     index: number
     type: string
-    disable: (key: string, value: unknown) => boolean
+    isKeyValueDisable: () => boolean
     onChange: (key: string, value: unknown) => void
     onTypeChange: (newType: ERowOptionalTypes) => void
     addNewNode: (params: AddNewNodeType) => void
@@ -51,7 +51,7 @@ export const Row = (props: Iprops) => {
             />
             <PresentKey
                 keyValue={props.keyValue}
-                disable={props.disable?.(props.keyValue, props.value) ?? false}
+                disable={props.isKeyValueDisable()}
                 onChange={onKeyValueChange}
                 identation={props.getIndentation()}
             />

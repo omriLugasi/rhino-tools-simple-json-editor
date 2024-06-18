@@ -38,6 +38,7 @@ export const JsonEditorV2 = (props: Iprops) => {
                     duplicateNode={item.duplicateNode}
                     getIndentation={item.getIndentation}
                     isOpen={item.isOpen}
+                    isKeyValueDisable={item.isKeyValueDisable}
                 />
     })
 }

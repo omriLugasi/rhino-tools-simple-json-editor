@@ -25,6 +25,7 @@ export type RowItemType = {
   addNewNode: (value: unknown) => void
   addNewNodeForObj: (value: unknown) => void
   getIndentation: () => number
+  isKeyValueDisable: () => boolean
   getKeyValue: () => string
   isOpen: () => boolean
   onDropDownClicked: () => void

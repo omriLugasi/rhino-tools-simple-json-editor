@@ -304,6 +304,11 @@ export class VirtualJsonTree {
                 isOpen: (): boolean => {
                     return !!item.__show_children__
                 },
+                isKeyValueDisable: (): boolean => {
+                    const parent = this.virtualTree[item.__parent_key__ as string]
+                    return parent && parent.__type__ === ERowOptionalTypes.array
+
+                },
                 addNewNodeForObj: (params: {value: unknown }): void => {
                     const { key, parentKey} = this.getItemPaths(item)
                     this.addNewNode({
