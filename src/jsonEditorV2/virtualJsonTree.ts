@@ -231,6 +231,36 @@ export class VirtualJsonTree {
 
     /**
      * @description
+     * Provide the new item key and item parent key by the provided values.
+     */
+    private getItemPaths(item: VirtualTreeType, options?: { duplicate: boolean }): { key: string, parentKey?: string } {
+        const { __type__, __parent_key__, __custom_key__ } = item
+        const parent = this.virtualTree[__parent_key__ as string]
+        let key: string | number = options?.duplicate ? `${item.__display_key__}-copy` : Math.random().toString(16).substring(2, 8)
+        if (__type__ === ERowOptionalTypes.array || parent?.__type__ === ERowOptionalTypes.array) {
+            const customKey = __type__ === ERowOptionalTypes.array ? item.__custom_key__ : parent.__custom_key__
+            key = 0
+            for (const vkey of Object.keys(this.virtualTree)) {
+                const current = this.virtualTree[vkey]
+                if (current.__parent_key__ === customKey) {
+                    key = Math.max(key, parseInt(current.__display_key__ as string))
+                }
+            }
+            key = `${key + 1}`
+        }
+
+        let parentKey = __parent_key__
+        if (__type__ === ERowOptionalTypes.object || __type__ === ERowOptionalTypes.array) {
+            parentKey = __custom_key__
+        }
+        if (options?.duplicate) {
+            parentKey = __parent_key__
+        }
+        return { key, parentKey }
+    }
+
+    /**
+     * @description
      * Provide all the main tree properties as array with all the needed parameters.
      */
     public getAll(): RowItemType[] {
@@ -275,39 +305,30 @@ export class VirtualJsonTree {
                     return !!item.__show_children__
                 },
                 addNewNodeForObj: (params: {value: unknown }): void => {
-                    const type = this.getTypeByValue(item.__vjt_value__)
-                    let parentKey = undefined
-                    if (type === ERowOptionalTypes.object || type === ERowOptionalTypes.array) {
-                        parentKey = item.__custom_key__
-                    } else {
-                       return
-                    }
-
-                    let newKey = Math.random().toString(16).substring(2, 8)
-                    if (type === ERowOptionalTypes.array) {
-                        // TODO: need to search here for all components understand what is the last number and then set +1 for it,
-                    }
+                    const { key, parentKey} = this.getItemPaths(item)
                     this.addNewNode({
-                        key: newKey,
+                        key,
                         value: params.value,
                         parentKey,
                         __visible__: true
                     })
                 },
                 addNewNode: (params: {value: unknown }): void => {
+                    const { key, parentKey } = this.getItemPaths(item)
                     this.addNewNode({
-                        key: Math.random().toString(16).substring(2, 8),
+                        key,
                         value: params.value,
-                        parentKey: item.__parent_key__,
+                        parentKey,
                         __visible__: true
                     })
                 },
                 duplicateNode: (): void => {
                     const current = this.virtualTree[item.__custom_key__]
+                    const { key, parentKey } = this.getItemPaths(current, { duplicate: true })
                     this.addNewNode({
-                        key: `${current.__display_key__}-copy`,
+                        key,
                         value: current.__vjt_value__,
-                        parentKey: current.__parent_key__,
+                        parentKey: parentKey,
                         __visible__: current.__visible__
                     })
                 }
