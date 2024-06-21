@@ -216,12 +216,12 @@ export class VirtualJsonTree {
             if (current.__parent_key__ === params.__custom_key__) {
                 this.virtualTree[current.__custom_key__] = {
                     ...this.virtualTree[current.__custom_key__],
-                    __visible__: !current.__visible__
+                    __visible__: params.forceState ?? !current.__visible__
                 }
             } else if (params.__custom_key__ === current.__custom_key__) {
                 this.virtualTree[current.__custom_key__] = {
                     ...this.virtualTree[current.__custom_key__],
-                    __show_children__: !current.__show_children__
+                    __show_children__: params.forceState ?? !current.__show_children__
                 }
             }
         })
@@ -346,6 +346,18 @@ export class VirtualJsonTree {
                 },
                 addNewNodeForObj: (params: {value: unknown }): void => {
                     const { key, parentKey} = this.getItemPaths(item)
+                    /**
+                     * @description
+                     * If the parent node is close, open the parent node and then insert the new node to the tree.
+                     * this will help us show the new node when user click on add new field when the node is collapse.
+                     */
+                    const parent = this.virtualTree[parentKey as string]
+                    if (!parent.__show_children__) {
+                        this.toggleNode({
+                            __custom_key__: parentKey as string,
+                            forceState: true
+                        })
+                    }
                     this.addNewNode({
                         key,
                         value: params.value,
