@@ -9,9 +9,12 @@ import {
 } from "../jsonEditor/types.ts";
 
 
+const vjtValueKey = '__vjt_value__'
+
 export class VirtualJsonTree {
     private virtualTree: Record<string, VirtualTreeType> = {}
-    private order: number = 0
+    private defaultOrder: number = 0
+    private order: Record<string, { children: number, parent: number}> = {}
     private onChange: () => void = () => {}
 
 
@@ -34,39 +37,59 @@ export class VirtualJsonTree {
     /**
      * @description
      * Assign new node to the virtual tree
+     * "orderKey" help us to define where the node should be presented on the key.
      */
     private assignNode(params: AssignNewNodeType): void {
         const { key, value, parentKey, __visible__} = params
         const type = this.getTypeByValue(value)
 
+        /**
+         * @description
+         * Reset the values in order to not present them in the tree.
+         * The nodes should be just collapse expends nodes.
+         */
         let val: unknown = value
-
         if (type === ERowOptionalTypes.object) {
             val = {}
         } else if (type === ERowOptionalTypes.array) {
             val = []
         }
 
-        let currentOrder: number = 0
-        const parent = this.virtualTree[parentKey as string]
-        if (!!parent) {
-            currentOrder = parent.__order__ + 0.1
-        } else {
-            currentOrder = (this.order += 1000) // I think that number will be a good fit for this case of ordering.
+
+        /**
+         * @description
+         * The order will help us to set new nodes and exists nodes in the right place
+         * in the tree.
+         * It's also useful when we add property to nested object and we want to see the node
+         * under it's actual parent.
+         */
+        const orderKey = !parentKey ? `${key}.${vjtValueKey}` : parentKey
+
+        if (!this.order[orderKey]) {
+            this.defaultOrder += 10000
+            this.order[orderKey] = {
+                children: this.defaultOrder,
+                parent: this.defaultOrder
+            }
         }
+        this.order[orderKey].children = this.order[orderKey].children + 0.01
+
 
         const data: VirtualTreeType = {
-            __vjt_value__: val,
+            [vjtValueKey]: val,
             __type__: type,
-            __custom_key__: `${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`,
+            __custom_key__: `${parentKey ? `${parentKey}.` : ''}${key}.${vjtValueKey}`,
             __display_key__: key,
             __visible__: __visible__ ?? true,
             __parent_key__: parentKey,
-            __order__: currentOrder
+            __order__: this.order[orderKey].children
         }
-
         this.virtualTree[data.__custom_key__] = data
 
+        /**
+         * @description
+         * If the node is an object/array we want to render also it's children as "independent" nodes.
+         */
         if (type === ERowOptionalTypes.object) {
             Object.keys(value).forEach((innerKey: string) => {
                const item = value[innerKey]
@@ -144,14 +167,14 @@ export class VirtualJsonTree {
             delete this.virtualTree[params.__custom_key__]
             this.virtualTree[currentCustomKey] = {
                 ...oldItem,
-                __vjt_value__: params.value,
+                [vjtValueKey]: params.value,
                 __custom_key__: currentCustomKey,
                 __display_key__: params.key
             }
         } else {
             this.virtualTree[params.__custom_key__] = {
                 ...this.virtualTree[params.__custom_key__],
-                __vjt_value__: params.value
+                [vjtValueKey]: params.value
             }
         }
         this.onChange()
@@ -182,7 +205,7 @@ export class VirtualJsonTree {
         this.virtualTree[params.__custom_key__] = {
             ...currentItem,
             __type__: params.newType,
-            __vjt_value__: this.getDefaultValueByType(params.newType)
+            [vjtValueKey]: this.getDefaultValueByType(params.newType)
         }
         this.onChange()
     }
@@ -214,7 +237,8 @@ export class VirtualJsonTree {
 
             const response = Object.keys(this.virtualTree).reduce((acc: Record<string, unknown>, key: string) => {
                 const item = this.virtualTree[key]
-                acc[item.__custom_key__.replace(/\.__vjt_value__/g, '') as string] = item.__vjt_value__
+                const regexValue = new RegExp(String.raw`/\.${vjtValueKey}/`, 'g');
+                acc[item.__custom_key__.replace(regexValue, '') as string] = item[vjtValueKey]
                 return acc
             }, {})
 
@@ -278,7 +302,8 @@ export class VirtualJsonTree {
         const createItem = (key: string, item: VirtualTreeType) => {
             return {
                 key,
-                value: item.__vjt_value__,
+                value: item[vjtValueKey],
+                order: item.__order__,
                 getType: () => item.__type__,
                 getCustomKey: (): string => item.__custom_key__,
                 onChange: (key: string, value: unknown) => {
@@ -309,7 +334,7 @@ export class VirtualJsonTree {
                     return item.__display_key__ as string
                 },
                 getIndentation: (): number => {
-                    return item.__custom_key__.split('.__vjt_value__').length -2
+                    return item.__custom_key__.split(`.${vjtValueKey}`).length -2
                 },
                 isOpen: (): boolean => {
                     return !!item.__show_children__
@@ -346,7 +371,7 @@ export class VirtualJsonTree {
                     }
                     this.addNewNode({
                         key,
-                        value: current.__vjt_value__,
+                        value: current[vjtValueKey],
                         parentKey: parentKey,
                         __visible__: current.__visible__
                     })
@@ -361,7 +386,7 @@ export class VirtualJsonTree {
             }
             return acc
         }, []).sort((a, b) => {
-            return a.getCustomKey().localeCompare(b.getCustomKey())
+            return a.order - b.order
         })
     }
 
