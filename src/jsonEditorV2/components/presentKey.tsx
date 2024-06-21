@@ -20,6 +20,7 @@ export const PresentKey = (props: IpresentKeyProps) => {
       <span
         style={{ fontWeight: 'bold' }}
         contentEditable={!props.disable}
+        suppressContentEditableWarning
         onBlur={onBlur}
         ref={keyRef}
       >
