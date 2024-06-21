@@ -11,6 +11,7 @@ export enum ERowOptionalTypes {
   nullValue = 'null',
   object = 'object',
   array = 'array',
+  datetime = 'datetime',
 }
 
 

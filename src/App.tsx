@@ -11,6 +11,8 @@ function App() {
             x: 1,
             y: 'sadasd',
             z: true,
+            time: new Date(),
+            nObj: {}
         },
         arr: new Array(12).fill(0)
     } } onValueChange={console.log} />

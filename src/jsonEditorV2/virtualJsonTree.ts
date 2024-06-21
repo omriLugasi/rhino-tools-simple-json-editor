@@ -25,6 +25,8 @@ export class VirtualJsonTree {
     private getTypeByValue(value: unknown): ERowOptionalTypes {
         if (Array.isArray(value)) {
             return ERowOptionalTypes.array
+        } else if (value instanceof Date) {
+            return ERowOptionalTypes.datetime
         } else if (typeof value === ERowOptionalTypes.object && value !== null) {
             return ERowOptionalTypes.object
         } else if (value === null) {
@@ -41,18 +43,24 @@ export class VirtualJsonTree {
      */
     private assignNode(params: AssignNewNodeType): void {
         const { key, value, parentKey, __visible__} = params
-        const type = this.getTypeByValue(value)
+        let type = this.getTypeByValue(value)
 
         /**
          * @description
          * Reset the values in order to not present them in the tree.
          * The nodes should be just collapse expends nodes.
+         *
+         * if type equal to Date object we want to convert it to string in order to support it
+         * in json format.
          */
         let val: unknown = value
         if (type === ERowOptionalTypes.object) {
             val = {}
         } else if (type === ERowOptionalTypes.array) {
             val = []
+        } else if (type === ERowOptionalTypes.datetime) {
+            val = (value as Date).toISOString()
+            type = ERowOptionalTypes.string
         }
 
 
@@ -63,16 +71,25 @@ export class VirtualJsonTree {
          * It's also useful when we add property to nested object and we want to see the node
          * under it's actual parent.
          */
-        const orderKey = !parentKey ? `${key}.${vjtValueKey}` : parentKey
+        // Still need to fix the order in the application
+        const orderKey: string = `${key}.${vjtValueKey}` //!parentKey ? `${key}.${vjtValueKey}` : parentKey
 
-        if (!this.order[orderKey]) {
+        console.log({ order: this.order, parentKey, displayKey: key })
+
+        if (!this.order[parentKey as string]) {
             this.defaultOrder += 10000
             this.order[orderKey] = {
                 children: this.defaultOrder,
                 parent: this.defaultOrder
             }
+        } else{
+            const defaultParentVal = this.order[parentKey as string].parent
+            this.order[parentKey as string].children = this.order[parentKey as string].children + 0.01
+            this.order[`${key}.${vjtValueKey}`] = {
+                children: this.order[parentKey as string].children,
+                parent: defaultParentVal
+            }
         }
-        this.order[orderKey].children = this.order[orderKey].children + 0.01
 
 
         const data: VirtualTreeType = {

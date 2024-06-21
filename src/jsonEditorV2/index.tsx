@@ -24,7 +24,7 @@ export const JsonEditorV2 = (props: Iprops) => {
     }, [jsonArr])
 
     return jsonArr.getAll().map((item: RowItemType, index: number) => {
-        return <Row
+        return [<Row
                     key={item.uniqueKey()}
                     keyValue={item.getKeyValue()}
                     value={item.value}
@@ -39,6 +39,6 @@ export const JsonEditorV2 = (props: Iprops) => {
                     getIndentation={item.getIndentation}
                     isOpen={item.isOpen}
                     isKeyValueDisable={item.isKeyValueDisable}
-                />
+                />, item.order]
     })
 }
