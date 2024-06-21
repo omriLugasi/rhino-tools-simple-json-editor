@@ -379,7 +379,7 @@ export class VirtualJsonTree {
             }
         }
 
-        const t = Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
+        return Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
             const item = this.virtualTree[key]
             if (item.__visible__) {
                 acc.push(createItem(key, item))
@@ -388,9 +388,6 @@ export class VirtualJsonTree {
         }, []).sort((a, b) => {
             return a.order - b.order
         })
-
-        console.log(t)
-        return t
     }
 
 
