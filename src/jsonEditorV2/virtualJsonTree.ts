@@ -11,7 +11,8 @@ import {
 
 export class VirtualJsonTree {
     private virtualTree: Record<string, VirtualTreeType> = {}
-    private order: number = 0
+    private defaultOrder: number = 0
+    private order: Record<string, { children: number, parent: number}> = {}
     private onChange: () => void = () => {}
 
 
@@ -47,12 +48,22 @@ export class VirtualJsonTree {
             val = []
         }
 
-        let currentOrder: number = 0
-        const parent = this.virtualTree[parentKey as string]
-        if (!!parent) {
-            currentOrder = parent.__order__ + 0.1
+
+        if (!parentKey) {
+            this.defaultOrder += 10000
+            this.order[`${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`] = {
+                children: this.defaultOrder,
+                parent: this.defaultOrder
+            }
         } else {
-            currentOrder = (this.order += 1000) // I think that number will be a good fit for this case of ordering.
+            if (!this.order[parentKey]) {
+                this.defaultOrder += 10000
+                this.order[parentKey] = {
+                    children: this.defaultOrder,
+                    parent: this.defaultOrder
+                }
+            }
+            this.order[parentKey].children = this.order[parentKey].children + 0.1
         }
 
         const data: VirtualTreeType = {
@@ -62,7 +73,7 @@ export class VirtualJsonTree {
             __display_key__: key,
             __visible__: __visible__ ?? true,
             __parent_key__: parentKey,
-            __order__: currentOrder
+            __order__: this.order[parentKey || `${parentKey ? `${parentKey}.` : ''}${key}.__vjt_value__`].children
         }
 
         this.virtualTree[data.__custom_key__] = data
@@ -279,6 +290,7 @@ export class VirtualJsonTree {
             return {
                 key,
                 value: item.__vjt_value__,
+                order: item.__order__,
                 getType: () => item.__type__,
                 getCustomKey: (): string => item.__custom_key__,
                 onChange: (key: string, value: unknown) => {
@@ -354,15 +366,18 @@ export class VirtualJsonTree {
             }
         }
 
-        return Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
+        const t = Object.keys(this.virtualTree).reduce((acc: RowItemType[], key: string) => {
             const item = this.virtualTree[key]
             if (item.__visible__) {
                 acc.push(createItem(key, item))
             }
             return acc
         }, []).sort((a, b) => {
-            return a.getCustomKey().localeCompare(b.getCustomKey())
+            return a.order - b.order
         })
+
+        console.log(t)
+        return t
     }
 
 

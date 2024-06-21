@@ -17,6 +17,7 @@ export enum ERowOptionalTypes {
 export type RowItemType = {
   key: string,
   value: unknown,
+  order: number,
   getType: () => string,
   onChange: (key: string, value: unknown) => void
   onTypeChange: (newType: ERowOptionalTypes) => void

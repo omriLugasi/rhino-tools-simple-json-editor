@@ -11,7 +11,8 @@ function App() {
         object: {
             x: 1,
             y: 'sadasd',
-            z: true
+            z: true,
+            nested1: {}
         }
     } } onValueChange={console.log} />
     </>
