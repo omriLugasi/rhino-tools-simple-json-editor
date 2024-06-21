@@ -60,6 +60,11 @@ export type UpdateNodeTypeEventType = {
 
 export type ToggleNodeType = {
   __custom_key__: VirtualTreeType['__custom_key__'],
+  /**
+   * @description
+   * Useful when we want to run toggle node, with specific state, for example open.
+   */
+  forceState?: boolean
 }
 
 

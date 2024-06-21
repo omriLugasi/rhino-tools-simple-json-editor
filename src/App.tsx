@@ -7,13 +7,12 @@ function App() {
   return (
     <>
     <JsonEditorV2 value={{
-        arr: new Array(12).fill(0),
         object: {
             x: 1,
             y: 'sadasd',
             z: true,
-            nested1: {}
-        }
+        },
+        arr: new Array(12).fill(0)
     } } onValueChange={console.log} />
     </>
   )
